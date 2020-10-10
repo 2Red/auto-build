@@ -1,0 +1,32 @@
+{
+  "rootPath": "D:\\An\\Toolkit Beta 4.3.1 origin",
+  "jsPath": "js",
+  "cssPath": "styles",
+  "excludeJs": ["jquery.js"],
+  "fileNoCopy": {
+    "root": ["CHANGELOG.md", "Description.md"],
+    "js": ["login_with_cookie.js", "logout_with_cookie.js"]
+  },
+  "minifyOptions": {
+    "collapseInlineTagWhitespace": true,
+    "collapseWhitespace": true,
+    "collapseBooleanAttributes": true,
+    "minifyJS": true,
+    "minifyCSS": true,
+    "removeComments": true,
+    "removeCommentsFromCDATA": true,
+    "removeEmptyAttributes": true,
+    "removeOptionalTags": true,
+    "removeEmptyElements": true,
+    "removeAttributeQuotes": true,
+    "removeRedundantAttributes": true,
+    "removeScriptTypeAttributes": true,
+    "removeStyleLinkTypeAttributes": true,
+    "useShortDoctype": true
+  },
+  "closureCompiler": {
+    "url": "https://closure-compiler.appspot.com/compile",
+    "level": "SIMPLE_OPTIMIZATIONS"
+  },
+  "output": "dist"
+}

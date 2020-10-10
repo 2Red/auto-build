@@ -1,0 +1,16 @@
+{
+  "name": "auto-build",
+  "version": "1.0.0",
+  "description": "Auto build Toolkit Beta",
+  "main": "index.js",
+  "scripts": {
+    "build": "node index.js"
+  },
+  "author": "ntan",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "html-minifier": "^4.0.0",
+    "node-fetch": "^2.6.1"
+  }
+}
