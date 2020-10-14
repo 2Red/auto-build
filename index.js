@@ -15,6 +15,9 @@ class Build {
     this.cssFiles = [];
     this.minifyOptions = null;
     this.outputPath = null;
+    this.jsPath = null;
+    this.cssPath = null;
+    this.excludeJs = null;
     this.closureCompiler = null;
   }
 
@@ -28,55 +31,105 @@ class Build {
     // get complier service url
     this.closureCompiler = this.config.closureCompiler;
 
+    // get exclude js
+    this.excludeJs = this.config.excludeJs;
+
+    // get root path
+    this.rootPath = this.config.rootPath;
+
     // read html files
-    this.htmlFiles = Util.readDir(this.config.rootPath, htmlExt);
+    this.htmlFiles = Util.readDir(this.rootPath, htmlExt);
 
     // read js files
     this.jsFiles = Util.readDir(
-      path.join(this.config.rootPath, this.config.jsPath),
+      path.join(this.rootPath, this.config.jsPath),
       jsExt
     );
 
     // read css files
     this.cssFiles = Util.readDir(
-      path.join(this.config.rootPath, this.config.cssPath),
+      path.join(this.rootPath, this.config.cssPath),
       cssExt
     );
 
     // create output folder
-    this.outputPath = path.join(this.config.rootPath, this.config.output);
+    this.outputPath = path.join(this.rootPath, this.config.output);
     Util.makeDir(this.outputPath);
 
-    // start minify html
-    this.minify(this.htmlFiles, this.minifyOptions);
+    // create js folder
+    this.jsPath = path.join(this.outputPath, this.config.jsPath);
+    Util.makeDir(this.jsPath);
 
-    // start closure compiler
-    this.compileJs(this.jsFiles, this.closureCompiler);
+    // create css folder
+    this.cssPath = path.join(this.outputPath, this.config.cssPath);
+    Util.makeDir(this.cssPath);
+
+    // start minify html
+    this.minifyHtml(this.htmlFiles, this.minifyOptions);
 
     // start minify css
-    // this.minify(this.cssFiles, this.minifyOptions);
+    this.minifyCss(this.cssFiles, {});
+
+    // start closure compiler
+    this.compileJs(this.jsFiles, this.closureCompiler, this.excludeJs);
+
+    // copy folder, file necessary
+    this.copySrc();
   }
 
-  // this method will minify html and css
-  async minify(files, minifyOptions) {
+  // this method will minify html
+  async minifyHtml(files, minifyOptions) {
     for (let i = 0; i < files.length; i++) {
       let text = await Util.readFile(files[i], false);
-      let textMinify = Util.minify(text, minifyOptions);
+      let textMinify = Util.minifyHtml(text, minifyOptions);
       let fileName = path.join(this.outputPath, path.basename(files[i]));
 
       Util.writeFile(fileName, textMinify);
     }
   }
 
+  // this method will minify css
+  async minifyCss(files, minifyOptions) {
+    for (let i = 0; i < files.length; i++) {
+      let text = await Util.readFile(files[i], false);
+      let textMinify = Util.minifyCss(text, minifyOptions);
+      let fileName = path.join(this.cssPath, path.basename(files[i]));
+
+      Util.writeFile(fileName, textMinify);
+    }
+  }
+
   // this method will compile js
-  async compileJs(files, closureCompiler) {
-    for (let i = 0; i < 1; i++) {
+  async compileJs(files, closureCompiler, excludeJs) {
+    for (let i = 0; i < files.length; i++) {
+      let basename = path.basename(files[i]);
+
+      if (excludeJs.indexOf(basename) > -1) {
+        continue;
+      }
+
       let text = await Util.readFile(files[i], false);
       let textCompiled = await Util.compileJs(text, closureCompiler);
-      //console.log(textCompiled);
-      //let fileName = path.join(this.outputPath, path.basename(files[i]));
-      //Util.writeFile(fileName, textCompiled);
+      let fileName = path.join(this.jsPath, basename);
+      Util.writeFile(fileName, textCompiled);
     }
+  }
+
+  copySrc() {
+    // copy lang
+    let langOri = path.join(this.rootPath, "lang");
+    let langDest = path.join(this.outputPath, "lang");
+    Util.copySrc(langOri, langDest);
+
+    //copy src
+    let srcOri = path.join(this.rootPath, "src");
+    let srcDest = path.join(this.outputPath, "src");
+    Util.copySrc(srcOri, srcDest);
+
+    // copy manifest
+    let manifestOri = path.join(this.rootPath, "manifest.json");
+    let manifestDest = path.join(this.outputPath, "manifest.json");
+    Util.copySrc(manifestOri, manifestDest);
   }
 }
 

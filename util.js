@@ -1,8 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 const fetch = require("node-fetch");
-const axios = require("axios").default;
 const minifier = require("html-minifier").minify;
+const cleanCSS = require("clean-css");
+const ncp = require("ncp").ncp;
+ncp.limit = 16;
 
 class Util {
   static readFile(path, isJson = true) {
@@ -26,20 +28,24 @@ class Util {
     }
 
     const files = fs.readdirSync(dirPath);
-    let htmlFiles = [];
+    let resultFiles = [];
 
     for (let i = 0; i < files.length; i++) {
       let filename = path.join(dirPath, files[i]);
       if (filename.indexOf(filter) >= 0) {
-        htmlFiles.push(filename);
+        resultFiles.push(filename);
       }
     }
 
-    return htmlFiles;
+    return resultFiles;
   }
 
-  static minify(text, options) {
+  static minifyHtml(text, options) {
     return minifier(text, options);
+  }
+
+  static minifyCss(text, options) {
+    return new cleanCSS(options).minify(text).styles;
   }
 
   static makeDir(dirPath) {
@@ -60,38 +66,57 @@ class Util {
     });
   }
 
+  static encodeBodyData(body) {
+    let s = "";
+
+    function encode(s) {
+      return encodeURIComponent(s).replace(/%20/g, "+");
+    }
+
+    for (var key in body) {
+      if (typeof body[key] == "string") {
+        s += (s ? "&" : "") + encode(key) + "=" + encode(body[key]);
+      }
+    }
+
+    return s;
+  }
+
   static compileJs(text, closureCompiler) {
     return new Promise((resolve, reject) => {
       let closureCompilerUrl = closureCompiler.url;
       let level = closureCompiler.level;
 
-      let body = JSON.stringify({
+      let body = {
         output_format: "text",
         output_info: "compiled_code",
-        //   output_info: "warnings",
-        //   output_info: "errors",
-        //   output_info: "statistics",
         compilation_level: level,
-        //   warning_level: "default",
-        //   output_file_name: "default.js",
         js_code: text,
-      });
+      };
 
       fetch(closureCompilerUrl, {
         method: "post",
         headers: {
           "Content-type": "application/x-www-form-urlencoded;charset=UTF-8",
         },
-        body: body,
+        body: Util.encodeBodyData(body),
       })
         .then((e) => e.text())
         .then((e) => {
-          console.log(e);
           return resolve(e);
         })
         .catch((ex) => {
           return reject(ex);
         });
+    });
+  }
+
+  static copySrc(src, dest) {
+    ncp(src, dest, function (err) {
+      if (err) {
+        return console.error(err);
+      }
+      console.log("done!");
     });
   }
 }

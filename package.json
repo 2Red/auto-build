@@ -9,8 +9,9 @@
   "author": "ntan",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.20.0",
+    "clean-css": "^4.2.3",
     "html-minifier": "^4.0.0",
+    "ncp": "^2.0.0",
     "node-fetch": "^2.6.1"
   }
 }

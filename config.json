@@ -2,11 +2,7 @@
   "rootPath": "D:\\An\\Toolkit Beta 4.3.1 origin",
   "jsPath": "js",
   "cssPath": "styles",
-  "excludeJs": ["jquery.js"],
-  "fileNoCopy": {
-    "root": ["CHANGELOG.md", "Description.md"],
-    "js": ["login_with_cookie.js", "logout_with_cookie.js"]
-  },
+  "excludeJs": ["jquery.js", "login_with_cookie.js", "logout_with_cookie.js"],
   "minifyOptions": {
     "collapseInlineTagWhitespace": true,
     "collapseWhitespace": true,
