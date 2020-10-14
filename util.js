@@ -116,7 +116,6 @@ class Util {
       if (err) {
         return console.error(err);
       }
-      console.log("done!");
     });
   }
 }
